@@ -15,6 +15,9 @@ import numpy as np
         1. Calibrate the camera with OpenCV and chessboard png: 
             https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html
         2. Use co-efficients to convert mm to px
+                                        focal length (mm) * real height of the object (mm) * image height (pixels)
+             distance to object (mm) = ----------------------------------------------------------------------------
+                                                        object height (pixels) * sensor height (mm)
 '''
 
 types = 'tag36h11'
