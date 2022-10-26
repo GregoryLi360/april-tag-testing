@@ -1,4 +1,4 @@
-import apriltag
+import pupil_apriltags as apriltag
 import cv2
 import numpy as np
 
@@ -21,9 +21,8 @@ import numpy as np
 '''
 
 types = 'tag36h11'
-options = apriltag.DetectorOptions(families=types)
 
-detector = apriltag.Detector(options)
+detector = apriltag.Detector(families= types)
 
 # image = cv2.imread('apriltag.png')
 # grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -31,7 +30,7 @@ detector = apriltag.Detector(options)
 
 class AprilTagDetector: 
 
-    cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture(1)
     ptA, ptB, ptC, ptD = None, None, None, None
 
     def __init__(self):
