@@ -22,68 +22,58 @@ import numpy as np
 
 types = 'tag36h11'
 
-detector = apriltag.Detector(families= types)
+detector = apriltag.Detector(families=types)
+
+real_size = (192, 192) # in mm
 
 # image = cv2.imread('apriltag.png')
 # grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 
-class AprilTagDetector: 
+cam = cv2.VideoCapture(0)
+ptA, ptB, ptC, ptD = None, None, None, None
 
-    cam = cv2.VideoCapture(1)
-    ptA, ptB, ptC, ptD = None, None, None, None
+def main():
+    while True:
+        ret, frame = cam.read()
+        if not ret or cv2.waitKey(1) == ord('x'): break
 
-    def __init__(self):
-        pass
+        grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
+        results = detector.detect(grayscale)
 
-    def main(self):
-        while True:
-            ret, frame = self.cam.read()
-            if not ret or cv2.waitKey(1) == ord('x'): break
+        # reset bbox
+        if results is None or len(results) == 0: 
+            ptB = None
+            ptC = None
+            ptD = None
+            ptA = None
 
-            grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
-
-            # draw bbox 
-            if (self.ptA != None and self.ptB != None and self.ptC != None and self.ptD != None):
-                for (a, b, c, d) in zip(self.ptA, self.ptB, self.ptC, self.ptD):
-                    cv2.line(frame, a, b, (0, 255, 0), 2)
-                    cv2.line(frame, b, c, (0, 255, 0), 2)
-                    cv2.line(frame, c, d, (0, 255, 0), 2)
-                    cv2.line(frame, d, a, (0, 255, 0), 2) 
-
-            cv2.imshow('frame', frame)
- 
-            results = detector.detect(grayscale)
-
-            # reset bbox
-            if results is None or len(results) == 0: 
-                self.ptB = None
-                self.ptC = None
-                self.ptD = None
-                self.ptA = None
-                continue
-
+        # draw bbox 
+        else:
             # get bbox
-            self.ptA, self.ptB, self.ptC, self.ptD = [], [], [], []
-            for index, res in enumerate(results):
-                # print(str(index))
-                (ptA, ptB, ptC, ptD) = res.corners
-                self.ptB.append((int(ptB[0]), int(ptB[1])))
-                self.ptC.append((int(ptC[0]), int(ptC[1])))
-                self.ptD.append((int(ptD[0]), int(ptD[1])))
-                self.ptA.append((int(ptA[0]), int(ptA[1])))
+            ptA, ptB, ptC, ptD = [], [], [], []
+            for res in results:
+                (a, b, c, d) = res.corners
+                ptB.append((int(b[0]), int(b[1])))
+                ptC.append((int(c[0]), int(c[1])))
+                ptD.append((int(d[0]), int(d[1])))
+                ptA.append((int(a[0]), int(a[1])))
 
-            
-            print(len(results))
+            for (a, b, c, d) in zip(ptA, ptB, ptC, ptD):
+                cv2.line(frame, a, b, (0, 255, 0), 2)
+                cv2.line(frame, b, c, (0, 255, 0), 2)
+                cv2.line(frame, c, d, (0, 255, 0), 2)
+                cv2.line(frame, d, a, (0, 255, 0), 2) 
+
+        cv2.imshow('frame', frame)
 
 
-        self.cam.release()
-        cv2.destroyAllWindows()
+    cam.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    run = AprilTagDetector()
-    run.main()
+    main()
 
 
 # # draw the center (x, y)-coordinates of the AprilTag
